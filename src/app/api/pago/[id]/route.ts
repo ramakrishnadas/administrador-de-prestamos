@@ -21,6 +21,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
         return NextResponse.json(result[0]);
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error fetching pago' }, { status: 500 });
     }
 }
@@ -54,6 +55,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
         return NextResponse.json(result[0]);
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error updating pago' }, { status: 500 });
     }
 }
@@ -76,6 +78,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
         return NextResponse.json({ message: 'Pago deleted successfully' });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error deleting pago' }, { status: 500 });
     }
 }
