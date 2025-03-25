@@ -9,7 +9,8 @@ export async function GET() {
         `;
         const result = data.rows;
         return NextResponse.json(result);
-    } catch (err) {
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error fetching prestamo'}, { status: 500});
     }
 }

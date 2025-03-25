@@ -9,7 +9,8 @@ export async function GET() {
         `;
         const result = data.rows;
         return NextResponse.json(result);
-    } catch (err) {
+    } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error fetching intermediarios'}, { status: 500});
     }
 }
@@ -27,6 +28,7 @@ export async function POST(request: Request) {
         const result = data.rows;
         return NextResponse.json(result[0], { status: 201 });
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ error: 'Error creating intermediario' }, { status: 500 });
     }
 }
