@@ -17,7 +17,7 @@ export async function GET() {
 export async function POST(request: Request) {
     // Need to add data validation
     try {
-        const { id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin } = await request.json();
+        const { id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin, inversionistas } = await request.json();
 
         if (isNaN(parseInt(id_cliente, 10))) {
             return NextResponse.json({ error: 'Invalid id_cliente' }, { status: 400 });
@@ -41,7 +41,27 @@ export async function POST(request: Request) {
             RETURNING id, id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin;
         `;
         const result = data.rows;
-        return NextResponse.json(result[0], { status: 201 });
+
+        // Create records in prestamo_inversionista
+        const id_prestamo = result[0].id;
+
+        const prestamoInversionistaResults = [];
+        for (const inversionista of inversionistas) {
+            const dataInversionista = await sql`
+                INSERT INTO prestamo_inversionista (id_prestamo, id_inversionista, monto_invertido, ganancia_inversionista, ganancia_administrador)
+                VALUES (${id_prestamo}, ${inversionista.id_inversionista}, ${inversionista.monto_invertido}, ${inversionista.ganancia_inversionista}, ${inversionista.ganancia_administrador})
+                RETURNING *;
+            `;
+            prestamoInversionistaResults.push(...dataInversionista.rows);
+        }
+        
+        return NextResponse.json(
+            { 
+                prestamo: result[0], 
+                prestamo_inversionista: prestamoInversionistaResults 
+            }, 
+            { status: 201 }
+        );
     } catch (error) {
         console.error(error)
         return NextResponse.json({ error: 'Error creating prestamo' }, { status: 500 });

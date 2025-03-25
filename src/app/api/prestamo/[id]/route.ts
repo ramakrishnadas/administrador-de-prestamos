@@ -34,7 +34,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
         }
 
-        const { id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin } = await request.json();
+        const { id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin, inversionistas } = await request.json();
 
         if (isNaN(parseInt(id_cliente, 10))) {
             return NextResponse.json({ error: 'Invalid id_cliente' }, { status: 400 });
@@ -64,7 +64,31 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             return NextResponse.json({ error: 'Prestamo not found' }, { status: 404 });
         }
 
-        return NextResponse.json(result[0]);
+        // Update records in prestamo_inversionista
+        const id_prestamo = result[0].id;
+
+        const prestamoInversionistaResults = [];
+        
+        if (inversionistas) {
+            
+            for (const inversionista of inversionistas) {
+                const dataInversionista = await sql`
+                    UPDATE prestamo_inversionista
+                    SET monto_invertido = ${inversionista.monto_invertido}, ganancia_inversionista = ${inversionista.ganancia_inversionista}, ganancia_administrador = ${inversionista.ganancia_administrador}
+                    WHERE id_prestamo = ${id_prestamo} AND id_inversionista = ${inversionista.id_inversionista}
+                    RETURNING *;
+                `;
+                prestamoInversionistaResults.push(...dataInversionista.rows);
+            }
+        }
+
+        return NextResponse.json(
+            { 
+                prestamo: result[0], 
+                prestamo_inversionista: prestamoInversionistaResults 
+            }, 
+            { status: 200 }
+        );
     } catch (error) {
         console.error(error);
         return NextResponse.json({ error: 'Error updating prestamo' }, { status: 500 });

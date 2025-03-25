@@ -53,6 +53,21 @@ async function seedData(client) {
         `;
         console.log('Created "intermediario" table');
 
+        // Create "aval" table
+        await client.sql`
+        CREATE TABLE IF NOT EXISTS aval (
+            id SERIAL PRIMARY KEY,
+            nombre_completo TEXT NOT NULL,
+            nro_telefono TEXT NOT NULL,
+            domicilio TEXT NOT NULL,
+            domicilio_laboral TEXT NOT NULL,
+            link_comprobante TEXT,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        );
+        `;
+        console.log('Created "aval" table');
+
         // Create "cliente" table
         await client.sql`
         CREATE TABLE IF NOT EXISTS cliente (
@@ -84,6 +99,7 @@ async function seedData(client) {
             id_cliente INT REFERENCES cliente(id),
             id_tipo_prestamo INT REFERENCES tipo_prestamo(id),
             id_intermediario INT REFERENCES intermediario(id) NULL,
+            id_aval INT REFERENCES aval(id) NULL;
             monto DECIMAL(10, 2) NOT NULL,
             tasa_interes DECIMAL(5, 4) NOT NULL,
             plazo TEXT CHECK (plazo IN ('Indefinido', 'Semanal', 'Quincenal', 'Mensual')),

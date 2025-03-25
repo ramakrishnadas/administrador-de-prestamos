@@ -164,7 +164,21 @@ Content-Type: application/json
   "plazo": "Mensual",
   "saldo": 10000,
   "fecha_inicio": "2025-03-19T00:00:00Z",
-  "fecha_fin": "2026-03-19T00:00:00Z"
+  "fecha_fin": "2026-03-19T00:00:00Z",
+  "inversionistas": [
+    {
+      "id_inversionista": 1,
+      "monto_invertido": 750,
+      "ganancia_inversionista": 0.20,
+      "ganancia_administrador": 0.15
+    },
+    {
+      "id_inversionista": 2,
+      "monto_invertido": 250,
+      "ganancia_inversionista": 0.20,
+      "ganancia_administrador": 0.15
+    }
+  ]
 }
 
 ### Get prestamo by ID
@@ -172,7 +186,7 @@ GET http://localhost:3000/api/prestamo/3
 Content-Type: application/json
 
 ### Update prestamo by ID
-PUT http://localhost:3000/api/prestamo/3
+PUT http://localhost:3000/api/prestamo/4
 Content-Type: application/json
 
 {
@@ -184,7 +198,21 @@ Content-Type: application/json
   "plazo": "Quincenal",
   "saldo": 15000,
   "fecha_inicio": "2025-03-19T00:00:00Z",
-  "fecha_fin": ""
+  "fecha_fin": "",
+  "inversionistas": [
+    {
+      "id_inversionista": 1,
+      "monto_invertido": 7500,
+      "ganancia_inversionista": 0.20,
+      "ganancia_administrador": 0.15
+    },
+    {
+      "id_inversionista": 2,
+      "monto_invertido": 2500,
+      "ganancia_inversionista": 0.20,
+      "ganancia_administrador": 0.15
+    }
+  ]
 }
 
 ### Delete a prestamo by ID
@@ -225,3 +253,39 @@ Content-Type: application/json
 ### Delete a cliente by ID
 DELETE http://localhost:3000/api/usuario/2
 Content-Type: application/json
+
+
+### Prestamo-Inversionista
+### Get prestamo_inversionista by id_prestamo
+GET http://localhost:3000/api/prestamo-inversionista/4
+Content-Type: application/json
+
+### Post prestamo_inversionista by id_prestamo
+POST http://localhost:3000/api/prestamo-inversionista/4
+Content-Type: application/json
+
+{
+  "id_inversionista": 2,
+  "monto_invertido": 2800,
+  "ganancia_inversionista": 0.30,
+  "ganancia_administrador": 0.25
+}
+
+### Update prestamo_inversionista by id_prestamo
+PUT http://localhost:3000/api/prestamo-inversionista/4
+Content-Type: application/json
+
+{
+  "id_inversionista": 2,
+  "monto_invertido": 2500,
+  "ganancia_inversionista": 0.20,
+  "ganancia_administrador": 0.25
+}
+
+### Delete a prestamo_inversionista by id_prestamo
+DELETE http://localhost:3000/api/prestamo-inversionista/4
+Content-Type: application/json
+
+{
+  "id_inversionista": 2
+}
