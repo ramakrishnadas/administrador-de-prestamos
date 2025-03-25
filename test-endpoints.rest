@@ -1,0 +1,227 @@
+### Clientes
+
+### Get clientes
+GET http://localhost:3000/api/cliente
+Content-Type: application/json
+
+### Create a new cliente
+POST http://localhost:3000/api/cliente
+Content-Type: application/json
+
+{
+  "nombre_completo": "Juan Pérez",
+  "nro_telefono": "+987654321",
+  "direccion": "Calle Falsa 123",
+  "email": "juan.perez@example.com"
+}
+
+### Get cliente by ID
+GET http://localhost:3000/api/cliente/3
+Content-Type: application/json
+
+### Update cliente by ID
+PUT http://localhost:3000/api/cliente/3
+Content-Type: application/json
+
+{
+  "nombre_completo": "Juan Pérez Modificado",
+  "nro_telefono": "+987654321",
+  "direccion": "Avenida Siempre Viva 742",
+  "email": "juan.perez.modificado@example.com"
+}
+
+### Delete a cliente by ID
+DELETE http://localhost:3000/api/cliente/3
+Content-Type: application/json
+
+### Intermediarios
+
+### Get intermediarios
+GET http://localhost:3000/api/intermediario
+Content-Type: application/json
+
+### Create a new intermediario
+POST http://localhost:3000/api/intermediario
+Content-Type: application/json
+
+{
+  "nombre_completo": "Juan Pérez",
+  "nro_telefono": "+987654321",
+  "email": "juan.perez@example.com"
+}
+
+### Get intermediario by ID
+GET http://localhost:3000/api/intermediario/4
+Content-Type: application/json
+
+### Update intermediario by ID
+PUT http://localhost:3000/api/intermediario/4
+Content-Type: application/json
+
+{
+  "nombre_completo": "Juan Pérez Modificado",
+  "nro_telefono": "+987654321",
+  "email": "juan.perez.modificado@example.com"
+}
+
+### Delete a intermediario by ID
+DELETE http://localhost:3000/api/intermediario/4
+Content-Type: application/json
+
+### Inversionistas
+
+### Get inversionistas
+GET http://localhost:3000/api/inversionista
+Content-Type: application/json
+
+### Create a new intermediario
+POST http://localhost:3000/api/inversionista
+Content-Type: application/json
+
+{
+  "nombre_completo": "Jose Lopez",
+  "email": "joselopez@example.com",
+  "fecha_registro": "2025-03-19T12:30:00Z",
+  "saldo": 1000.50
+}
+
+### Get inversionista by ID
+GET http://localhost:3000/api/inversionista/7
+Content-Type: application/json
+
+### Update inversionista by ID
+PUT http://localhost:3000/api/inversionista/7
+Content-Type: application/json
+
+{
+  "nombre_completo": "Jose Daniel Lopez",
+  "email": "jose.lopez@example.com",
+  "fecha_registro": "2025-04-19T12:30:00Z",
+  "saldo": 1000.50
+}
+
+### Delete a inversionista by ID
+DELETE http://localhost:3000/api/inversionista/4
+Content-Type: application/json
+
+
+### Pago
+
+### Get pagos
+GET http://localhost:3000/api/pago
+Content-Type: application/json
+
+### Create a new pago
+POST http://localhost:3000/api/pago
+Content-Type: application/json
+
+{
+  "id_prestamo": 1,
+  "metodo_de_pago": "Tarjeta de crédito",
+  "monto_pagado": 200.00,
+  "estatus": "Realizado",
+  "fecha": "2025-03-19T14:00:00Z"
+}
+
+### Get pago by ID
+GET http://localhost:3000/api/pago/3
+Content-Type: application/json
+
+### Update pago by ID
+PUT http://localhost:3000/api/pago/3
+Content-Type: application/json
+
+{
+  "id_prestamo": 2,
+  "metodo_de_pago": "Efectivo",
+  "monto_pagado": 300.00,
+  "estatus": "Atrasado",
+  "fecha": "2025-02-19T14:00:00Z"
+}
+
+### Delete a pago by ID
+DELETE http://localhost:3000/api/pago/3
+Content-Type: application/json
+
+
+
+### Prestamo
+
+### Get prestamo
+GET http://localhost:3000/api/prestamo
+Content-Type: application/json
+
+### Create a new prestamo
+POST http://localhost:3000/api/prestamo
+Content-Type: application/json
+
+{
+  "id_cliente": 1,
+  "id_tipo_prestamo": 2,
+  "id_intermediario": 1,
+  "monto": 10000,
+  "tasa_interes": 0.20,
+  "plazo": "Mensual",
+  "saldo": 10000,
+  "fecha_inicio": "2025-03-19T00:00:00Z",
+  "fecha_fin": "2026-03-19T00:00:00Z"
+}
+
+### Get prestamo by ID
+GET http://localhost:3000/api/prestamo/3
+Content-Type: application/json
+
+### Update prestamo by ID
+PUT http://localhost:3000/api/prestamo/3
+Content-Type: application/json
+
+{
+  "id_cliente": 2,
+  "id_tipo_prestamo": 1,
+  "id_intermediario": 1,
+  "monto": 15000,
+  "tasa_interes": 0.10,
+  "plazo": "Quincenal",
+  "saldo": 15000,
+  "fecha_inicio": "2025-03-19T00:00:00Z",
+  "fecha_fin": ""
+}
+
+### Delete a prestamo by ID
+DELETE http://localhost:3000/api/prestamo/3
+Content-Type: application/json
+
+
+### Usuarios
+
+### Get usuarios
+GET http://localhost:3000/api/usuario
+Content-Type: application/json
+
+### Create a new usuario
+POST http://localhost:3000/api/usuario
+Content-Type: application/json
+
+{
+  "nombre_completo": "Jose Pérez",
+  "email": "jose.perez@example.com",
+  "password": "jose1234"
+}
+
+### Get usuario by ID
+GET http://localhost:3000/api/usuario/2
+Content-Type: application/json
+
+### Update cliente by ID
+PUT http://localhost:3000/api/usuario/2
+Content-Type: application/json
+
+{
+  "nombre_completo": "Jose Pérez Modificado",
+  "email": "jose.perez.modificado@example.com",
+  "password": "jose4321"
+}
+
+### Delete a cliente by ID
+DELETE http://localhost:3000/api/usuario/2
+Content-Type: application/json
