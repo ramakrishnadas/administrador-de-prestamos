@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { PrestamoInversionista } from '@/app/lib/defintions';
 
-export async function GET(request: Request, { params }: { params: { id_prestamo: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id_prestamo: string }> }) {
     try {
         const { id_prestamo } = await params;
 
@@ -26,7 +26,7 @@ export async function GET(request: Request, { params }: { params: { id_prestamo:
     }
 }
 
-export async function POST(request: Request, { params }: { params: { id_prestamo: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id_prestamo: string }> }) {
     // Need to add data validation
     try {
         const { id_inversionista, monto_invertido, ganancia_inversionista, ganancia_administrador } = await request.json();
@@ -51,7 +51,7 @@ export async function POST(request: Request, { params }: { params: { id_prestamo
     }
 }
 
-export async function PUT(request: Request, { params }: { params: { id_prestamo: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id_prestamo: string }> }) {
     try {
         // Need to add validation
         const { id_prestamo } = await params;
@@ -81,7 +81,7 @@ export async function PUT(request: Request, { params }: { params: { id_prestamo:
     }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id_prestamo: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id_prestamo: string }> }) {
     try {
         const { id_prestamo } = await params;
         const { id_inversionista } = await request.json();
