@@ -42,7 +42,7 @@ function generateAmortizationSchedule(
     (Math.pow(1 + periodicRate, totalPayments) - 1);
 
   let balance = principal;
-  let schedule = [];
+  const schedule = [];
 
   for (let i = 1; i <= totalPayments; i++) {
     const interestPayment = balance * periodicRate;
