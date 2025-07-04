@@ -18,12 +18,12 @@ export async function GET() {
 export async function POST(request: Request) {
     // Need to add data validation
     try {
-        const { nombre_completo, nro_telefono, direccion, email } = await request.json();
+        const { nombre_completo, nro_telefono, direccion, email, ocupacion, domicilio_laboral, link_comprobante } = await request.json();
         
         const data = await sql<Cliente>`
-            INSERT INTO cliente (nombre_completo, nro_telefono, direccion, email)
-            VALUES (${nombre_completo}, ${nro_telefono}, ${direccion}, ${email})
-            RETURNING id, nombre_completo, nro_telefono, direccion, email;
+            INSERT INTO cliente (nombre_completo, nro_telefono, direccion, email, ocupacion, domicilio_laboral, link_comprobante)
+            VALUES (${nombre_completo}, ${nro_telefono}, ${direccion}, ${email}, ${ocupacion}, ${domicilio_laboral}, ${link_comprobante})
+            RETURNING id, nombre_completo, nro_telefono, direccion, email, ocupacion, domicilio_laboral, link_comprobante;
         `;
         const result = data.rows;
         return NextResponse.json(result[0], { status: 201 });

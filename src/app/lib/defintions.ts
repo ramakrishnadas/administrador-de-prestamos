@@ -26,16 +26,18 @@ export type Intermediario = {
 	updated_at: Date;
 }
 
-type PlazoPrestamo =  "Indefinido" | "Semanal" | "Quincenal" | "Mensual";
+export type PlazoPrestamo =  "Indefinido" | "Semanal" | "Quincenal" | "Mensual";
 
 export type Prestamo = {
     id: number;
     id_cliente: number;
     id_tipo_prestamo: number;
     id_intermediario: number | null;
+    id_aval: number | null;
     monto: string;
     tasa_interes: string;
-    plazo: PlazoPrestamo;
+    periodicidad: PlazoPrestamo;
+    plazo: number;
     saldo: string;
     fecha_inicio: Date;
     fecha_fin: Date;
@@ -57,6 +59,9 @@ export type Cliente = {
     email: string;
     nro_telefono: string;
     direccion: string;
+    ocupacion: string;
+    domicilio_laboral: string;
+    link_comprobante: string;
     created_at: Date;
 	updated_at: Date;
 }
@@ -69,7 +74,6 @@ export type TipoPrestamo = {
 
 type Estatus = "Pendiente" | "Realizado" | "Atrasado" |"Abonado";
 
-
 export type Pago = {
     id: number;
     id_prestamo: number;
@@ -81,3 +85,22 @@ export type Pago = {
     updated_at: Date;
 }
 
+export type Aval = {
+    id: number;
+    nombre_completo: string;
+    nro_telefono: string;
+    domicilio: string;
+    domicilio_laboral: string;
+    link_comprobante: string;
+    ocupacion: string;
+    created_at: Date;
+	updated_at: Date;
+}
+
+export type PrestamoInversionistaWithDetails = {
+    id_inversionista: number;
+    inversionista: Inversionista;
+    monto_invertido: string;
+    ganancia_inversionista: string;
+    ganancia_administrador: string;
+};

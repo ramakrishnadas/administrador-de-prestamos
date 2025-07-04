@@ -62,6 +62,7 @@ async function seedData(client) {
             domicilio TEXT NOT NULL,
             domicilio_laboral TEXT NOT NULL,
             link_comprobante TEXT,
+            ocupacion TEXT,
             created_at TIMESTAMP DEFAULT NOW(),
             updated_at TIMESTAMP DEFAULT NOW()
         );
@@ -77,7 +78,10 @@ async function seedData(client) {
             direccion TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
             created_at TIMESTAMP DEFAULT NOW(),
-            updated_at TIMESTAMP DEFAULT NOW()
+            updated_at TIMESTAMP DEFAULT NOW(),
+            ocupacion TEXT,
+            domicilio_laboral TEXT,
+            link_comprobante TEXT
         );
         `;
         console.log('Created "cliente" table');
@@ -102,7 +106,8 @@ async function seedData(client) {
             id_aval INT REFERENCES aval(id) NULL;
             monto DECIMAL(10, 2) NOT NULL,
             tasa_interes DECIMAL(5, 4) NOT NULL,
-            plazo TEXT CHECK (plazo IN ('Indefinido', 'Semanal', 'Quincenal', 'Mensual')),
+            periodicidad TEXT CHECK (plazo IN ('Indefinido', 'Semanal', 'Quincenal', 'Mensual')),
+            plazo INT DEFAULT NULL,
             saldo DECIMAL(10, 2) NOT NULL,
             fecha_inicio TIMESTAMP NOT NULL,
             fecha_fin TIMESTAMP,

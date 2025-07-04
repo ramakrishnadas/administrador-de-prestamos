@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
-import { Cliente } from '@/app/lib/defintions';
+import { TipoPrestamo } from '@/app/lib/defintions';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -10,19 +10,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
         }
         
-        const data = await sql<Cliente>`
-            SELECT * FROM cliente WHERE id = ${id};
+        const data = await sql<TipoPrestamo>`
+            SELECT * FROM tipo_prestamo WHERE id = ${id};
         `;
         const result = data.rows;
         
         if (result.length === 0) {
-            return NextResponse.json({ error: 'Cliente not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Tipo de préstamo not found' }, { status: 404 });
         }
 
         return NextResponse.json(result[0]);
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Error fetching cliente' }, { status: 500 });
+        return NextResponse.json({ error: 'Error fetching tipo de préstamo' }, { status: 500 });
     }
 }
 
@@ -35,24 +35,24 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
             return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
         }
 
-        const { nombre_completo, nro_telefono, direccion, email, ocupacion, domicilio_laboral, link_comprobante } = await request.json();
+        const { nombre, descripcion } = await request.json();
 
         const data = await sql`
             UPDATE cliente
-            SET nombre_completo = ${nombre_completo}, nro_telefono = ${nro_telefono}, direccion = ${direccion}, email = ${email}, ocupacion = ${ocupacion}, domicilio_laboral = ${domicilio_laboral}, link_comprobante = ${link_comprobante}, updated_at = now()
+            SET nombre = ${nombre}, descripcion = ${descripcion}
             WHERE id = ${id}
-            RETURNING id, nombre_completo, nro_telefono, direccion, email, ocupacion, domicilio_laboral, link_comprobante;
+            RETURNING id, nombre, descripcion;
         `;
 
         const result = data.rows;
         if (result.length === 0) {
-            return NextResponse.json({ error: 'Cliente not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Tipo de préstamo not found' }, { status: 404 });
         }
 
         return NextResponse.json(result[0]);
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Error updating cliente' }, { status: 500 });
+        return NextResponse.json({ error: 'Error updating tipo de préstamo' }, { status: 500 });
     }
 }
 
@@ -65,16 +65,16 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
         }
 
         const data = await sql`
-            DELETE FROM cliente WHERE id = ${id} RETURNING id;
+            DELETE FROM tipo_prestamo WHERE id = ${id} RETURNING id;
         `;
         const result = data.rows;
         if (result.length === 0) {
-            return NextResponse.json({ error: 'Cliente not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Tipo de préstamo not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Cliente deleted successfully' });
+        return NextResponse.json({ message: 'Tipo de préstamo deleted successfully' });
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Error deleting cliente' }, { status: 500 });
+        return NextResponse.json({ error: 'Error deleting tipo de préstamo' }, { status: 500 });
     }
 }
