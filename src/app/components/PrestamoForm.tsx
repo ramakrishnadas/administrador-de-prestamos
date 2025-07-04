@@ -19,7 +19,6 @@ type PrestamoFormProps = {
 
 export default function PrestamoForm({ 
   onSave,
-  onCancel,
   id,
 }: PrestamoFormProps) {
   const [formData, setFormData] = useState({

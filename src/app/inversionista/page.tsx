@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Inversionista } from "../lib/defintions";
-import styled from 'styled-components';
 import DataTable from "react-data-table-component";
 import React from "react";
 import { fetchInversionistas } from "../lib/helpers";

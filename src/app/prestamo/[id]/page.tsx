@@ -27,7 +27,7 @@ export default function PrestamoViewPage() {
   })
 
   const isLoadingInversionistas = inversionistaQueries.some(q => q.isLoading);
-  const hasErrorInversionistas = inversionistaQueries.some(q => q.isError);
+  // const hasErrorInversionistas = inversionistaQueries.some(q => q.isError);
   const inversionistas = inversionistaQueries.map(q => q.data);
 
   const nombresInversionistas = inversionistas.map( inversionista => inversionista?.nombre_completo).join(", ");
@@ -44,7 +44,7 @@ export default function PrestamoViewPage() {
     }
   }
 
-  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingInversionistas) 
+  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingPrestamoInversionistas || isLoadingInversionistas) 
     return (
       <div className="flex items-center justify-center h-screen">
           <p className="text-lg font-medium">Cargando...</p>

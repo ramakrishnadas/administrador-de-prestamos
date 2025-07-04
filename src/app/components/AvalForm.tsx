@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { fetchAvalById, fetchClienteById } from "../lib/helpers"
+import { fetchAvalById } from "../lib/helpers"
 import { Aval } from "../lib/defintions";
 
 type AvalFormProps = {

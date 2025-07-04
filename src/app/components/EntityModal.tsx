@@ -16,7 +16,6 @@ export function EntityModal<T>({
   visible,
   onClose,
   onSave,
-  initialData,
   FormComponent,
 }: EntityModalProps<T>) {
   if (!visible) return null;

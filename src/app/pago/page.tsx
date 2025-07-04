@@ -1,10 +1,10 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query";
-import { Cliente, Pago } from "../lib/defintions";
+import { Pago } from "../lib/defintions";
 import DataTable from "react-data-table-component";
 import React from "react";
-import { fetchClientes, fetchPagos, formatDate } from "../lib/helpers";
+import { fetchPagos, formatDate } from "../lib/helpers";
 import Link from "next/link";
 import FilterComponent from "../components/FilterComponent";
 
