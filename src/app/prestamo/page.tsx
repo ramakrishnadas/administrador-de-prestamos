@@ -84,7 +84,7 @@ export default function PrestamosPage() {
         new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.monto)),
       sortFunction: (a: Prestamo, b: Prestamo) => parseFloat(a.monto) - parseFloat(b.monto) // Ensure numeric sorting
     },
-    { name: 'Tasa de Interés', selector: (row: Prestamo) => (parseFloat(row.tasa_interes) * 100).toFixed(1) + "%", wrap: true, grow: 2 },
+    { name: 'Tasa de Interés', selector: (row: Prestamo) => Math.round(parseFloat(row.tasa_interes) * 100) + "%", wrap: true, grow: 2 },
     { name: 'Periodicidad', selector: (row: Prestamo) => row.periodicidad, wrap: true},
     { name: 'Plazo', selector: (row: Prestamo) => row.plazo },
     { name: 'Saldo', selector: (row: Prestamo) => row.saldo, // Keep this as a number for sorting
@@ -165,6 +165,7 @@ export default function PrestamosPage() {
             data={filteredItems}
             pagination
             paginationResetDefaultPage={resetPaginationToggle}
+            paginationPerPage={15}
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
             persistTableHead

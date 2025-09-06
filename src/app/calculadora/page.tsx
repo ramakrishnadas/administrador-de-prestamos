@@ -2,72 +2,8 @@
 
 import { useState } from "react";
 import DataTable from "react-data-table-component";
-
-type Frequency = "semanal" | "quincenal" | "mensual";
-
-type PaymentScheduleRow = {
-  numero: number;               // Pago No.
-  saldoCapital: string;         // Saldo Capital antes del pago, en formato string con dos decimales
-  pagoCapital: string;          // Pago Capital en formato string
-  pagoIntereses: string;        // Pago Intereses en formato string
-  montoPago: string;            // Monto de Pago (capital + interés) en string
-  plazoDias: number;            // Plazo en días (por periodo)
-  saldoRestante: string;        // Saldo Capital Restante en string
-  fecha: string;                // Fecha en formato local (string)
-};
-
-interface Result {
-  totalToPay: string;
-  paymentPerPeriod: string;
-}
-
-function generateAmortizationSchedule(
-  principal: number,
-  periodicRate: number,
-  totalPayments: number,
-  frequency: Frequency,
-  startDate: Date = new Date()
-) {
-  const frequencyDays: Record<Frequency, number> = {
-    semanal: 7,
-    quincenal: 15,
-    mensual: 30,
-  };
-
-  const daysPerPeriod = frequencyDays[frequency];
-
-  const payment =
-    principal *
-    (periodicRate * Math.pow(1 + periodicRate, totalPayments)) /
-    (Math.pow(1 + periodicRate, totalPayments) - 1);
-
-  let balance = principal;
-  const schedule = [];
-
-  for (let i = 1; i <= totalPayments; i++) {
-    const interestPayment = balance * periodicRate;
-    const principalPayment = payment - interestPayment;
-    const remainingBalance = balance - principalPayment;
-
-    const paymentDate = new Date(startDate);
-    paymentDate.setDate(paymentDate.getDate() + daysPerPeriod * (i - 1));
-
-    schedule.push({
-      numero: i,
-      saldoCapital: balance.toFixed(2),
-      pagoCapital: principalPayment.toFixed(2),
-      pagoIntereses: interestPayment.toFixed(2),
-      montoPago: payment.toFixed(2),
-      plazoDias: daysPerPeriod,
-      saldoRestante: remainingBalance > 0 ? remainingBalance.toFixed(2) : "0.00",
-      fecha: paymentDate.toLocaleDateString(),
-    });
-
-    balance = remainingBalance;
-  }
-
-  return schedule;
-}
+import { Frequency, PaymentScheduleRow, Result } from "../lib/defintions";
+import { formatDate, generateAmortizationSchedule } from "../lib/helpers";
 
 
 export default function LoanCalculator() {
@@ -79,53 +15,81 @@ export default function LoanCalculator() {
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentScheduleRow[]>([]);
 
   const calculate = () => {
-  const numericAmount = parseFloat(amount);
-  const numericRate = parseFloat(annualInterestRate);
-  const numericTerm = parseFloat(term);
+    const numericAmount = parseFloat(amount);
+    const numericRate = parseFloat(annualInterestRate);
+    const numericTerm = parseFloat(term);
 
-  if (isNaN(numericAmount) || isNaN(numericRate) || isNaN(numericTerm)) return;
+    if (isNaN(numericAmount) || isNaN(numericRate) || isNaN(numericTerm)) return;
 
-  const periodsPerYear: Record<Frequency, number> = {
-    semanal: 52,
-    quincenal: 24,
-    mensual: 12,
+    const periodsPerYear: Record<Frequency, number> = {
+      semanal: 52,
+      quincenal: 24,
+      mensual: 12,
+    };
+
+    const periods = periodsPerYear[frequency];
+    const periodicRate = (numericRate / 100) / periods;
+
+    // Compound amortization payment formula
+    const paymentPerPeriod =
+      numericAmount *
+      (periodicRate * Math.pow(1 + periodicRate, numericTerm)) /
+      (Math.pow(1 + periodicRate, numericTerm) - 1);
+
+    const totalToPay = paymentPerPeriod * numericTerm;
+
+    setResult({
+      totalToPay: totalToPay.toFixed(2),
+      paymentPerPeriod: paymentPerPeriod.toFixed(2),
+    });
+
+    const schedule = generateAmortizationSchedule(
+      numericAmount,
+      numericRate,
+      numericTerm,
+      frequency
+    );
+    setPaymentSchedule(schedule);
   };
 
-  const periods = periodsPerYear[frequency];
-  const periodicRate = (numericRate / 100) / periods;
-
-  // Compound amortization payment formula
-  const paymentPerPeriod =
-    numericAmount *
-    (periodicRate * Math.pow(1 + periodicRate, numericTerm)) /
-    (Math.pow(1 + periodicRate, numericTerm) - 1);
-
-  const totalToPay = paymentPerPeriod * numericTerm;
-
-  setResult({
-    totalToPay: totalToPay.toFixed(2),
-    paymentPerPeriod: paymentPerPeriod.toFixed(2),
-  });
-
-  const schedule = generateAmortizationSchedule(
-    numericAmount,
-    periodicRate,
-    numericTerm,
-    frequency
-  );
-  setPaymentSchedule(schedule);
-};
-
-
   const columns = [
-    { name: "Pago No.", selector: (row: PaymentScheduleRow) => row.numero, sortable: true },
-    { name: "Saldo Capital", selector: (row: PaymentScheduleRow) => `$${row.saldoCapital}` },
-    { name: "Pago Capital", selector: (row: PaymentScheduleRow) => `$${row.pagoCapital}` },
-    { name: "Pago Intereses", selector: (row: PaymentScheduleRow) => `$${row.pagoIntereses}` },
-    { name: "Monto de Pago", selector: (row: PaymentScheduleRow) => `$${row.montoPago}` },
-    { name: "Plazo en días", selector: (row: PaymentScheduleRow) => row.plazoDias },
-    { name: "Saldo Capital Restante", selector: (row: PaymentScheduleRow) => `$${row.saldoRestante}` },
-    { name: "Fecha", selector: (row: PaymentScheduleRow) => row.fecha },
+    { name: "Pago No.", selector: (row: PaymentScheduleRow) => row.numero_cuota, sortable: true },
+    { name: 'Saldo Capital', selector: (row: PaymentScheduleRow) => row.saldo_capital_inicial, // Keep this as a number for sorting
+          sortable: true,
+          format: (row: PaymentScheduleRow) => 
+            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.saldo_capital_inicial)),
+          sortFunction: (a: PaymentScheduleRow, b: PaymentScheduleRow) => parseFloat(a.saldo_capital_inicial) - parseFloat(b.saldo_capital_inicial) // Ensure numeric sorting
+    },
+    { name: 'Pago Capital', selector: (row: PaymentScheduleRow) => row.pago_capital, // Keep this as a number for sorting
+          sortable: true,
+          format: (row: PaymentScheduleRow) => 
+            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.pago_capital)),
+          sortFunction: (a: PaymentScheduleRow, b: PaymentScheduleRow) => parseFloat(a.pago_capital) - parseFloat(b.pago_capital)
+    },
+    { name: 'Pago Intereses', selector: (row: PaymentScheduleRow) => row.pago_interes,
+          sortable: true,
+          format: (row: PaymentScheduleRow) => 
+            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.pago_interes)),
+          sortFunction: (a: PaymentScheduleRow, b: PaymentScheduleRow) => parseFloat(a.pago_interes) - parseFloat(b.pago_interes)
+    },
+    { name: 'Monto de Pago', selector: (row: PaymentScheduleRow) => row.monto_cuota,
+          sortable: true,
+          format: (row: PaymentScheduleRow) => 
+            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.monto_cuota)),
+          sortFunction: (a: PaymentScheduleRow, b: PaymentScheduleRow) => parseFloat(a.monto_cuota) - parseFloat(b.monto_cuota)
+    },
+    { name: 'Saldo Capital Restante', selector: (row: PaymentScheduleRow) => row.saldo_capital_final,
+          sortable: true,
+          format: (row: PaymentScheduleRow) => 
+            new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(parseFloat(row.saldo_capital_final)),
+          sortFunction: (a: PaymentScheduleRow, b: PaymentScheduleRow) => parseFloat(a.saldo_capital_final) - parseFloat(b.saldo_capital_final) 
+    },
+    { name: "Fecha", selector: (row: PaymentScheduleRow) => {
+        const fecha = new Date(row.fecha_limite);
+        const formattedDate = formatDate(fecha);
+        return formattedDate;
+      } 
+    }
   ]
 
   return (
@@ -202,6 +166,7 @@ export default function LoanCalculator() {
             columns={columns}
             data={paymentSchedule}
             pagination
+            paginationPerPage={15}
             dense
             striped
           />

@@ -126,6 +126,7 @@ export default function AvalesPage() {
             data={filteredItems}
             pagination
             paginationResetDefaultPage={resetPaginationToggle}
+            paginationPerPage={15}
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
             persistTableHead

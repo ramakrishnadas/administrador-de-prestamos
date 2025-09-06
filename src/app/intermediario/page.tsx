@@ -66,6 +66,7 @@ export default function IntermediariosPage() {
             data={filteredItems}
             pagination
             paginationResetDefaultPage={resetPaginationToggle}
+            paginationPerPage={15}
             subHeader
             subHeaderComponent={subHeaderComponentMemo}
             persistTableHead

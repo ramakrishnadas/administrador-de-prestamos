@@ -26,7 +26,7 @@ export type Intermediario = {
 	updated_at: Date;
 }
 
-export type PlazoPrestamo =  "Indefinido" | "Semanal" | "Quincenal" | "Mensual";
+export type Frequency = "semanal" | "quincenal" | "mensual";
 
 export type Prestamo = {
     id: number;
@@ -36,7 +36,7 @@ export type Prestamo = {
     id_aval: number | null;
     monto: string;
     tasa_interes: string;
-    periodicidad: PlazoPrestamo;
+    periodicidad: Frequency;
     plazo: number;
     saldo: string;
     fecha_inicio: Date;
@@ -72,14 +72,13 @@ export type TipoPrestamo = {
     descripcion: string;
 }
 
-type Estatus = "Pendiente" | "Realizado" | "Atrasado" |"Abonado";
-
 export type Pago = {
     id: number;
     id_prestamo: number;
     metodo_de_pago: string;
-    monto_pagado: string;
-    estatus: Estatus;
+    monto_capital: string;
+    monto_interes: string;
+    monto_total: string;
     fecha: Date;
     created_at: Date;
     updated_at: Date;
@@ -104,3 +103,33 @@ export type PrestamoInversionistaWithDetails = {
     ganancia_inversionista: string;
     ganancia_administrador: string;
 };
+
+export interface Result {
+  totalToPay: string;
+  paymentPerPeriod: string;
+}
+
+export type PaymentScheduleRow = {
+  numero_cuota: number;
+  saldo_capital_inicial: string;
+  pago_capital: string;
+  pago_interes: string;
+  monto_cuota: string;
+  saldo_capital_final: string;
+  fecha_limite: string;
+};
+
+type Estatus = "pendiente" | "pagado" | "atrasado" | "abonado" | "cancelado";
+
+export type CronogramaPagos = {
+    id: number;
+    id_prestamo: number;
+    numero_cuota: number;
+    fecha_limite: Date;
+    saldo_capital_inicial: string;
+    pago_capital: string;
+    pago_interes: string;
+    monto_cuota: string;
+    saldo_capital_final: string;
+    estado: Estatus;
+}

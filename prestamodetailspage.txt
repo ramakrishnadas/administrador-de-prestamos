@@ -1,0 +1,35 @@
+<div className="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto border border-gray-200">
+        <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+          Préstamo ID: {prestamo.id}
+        </h1>
+          
+        {/* Cliente Section */}
+        {cliente && (
+          <div className="space-y-4 text-gray-700">
+            <h2 className="text-xl font-semibold text-gray-800">Cliente: {cliente.nombre_completo}</h2>
+          </div>
+        )}
+
+        {/* Inversionistas Section */}
+        {inversionistas && inversionistas.length > 0 && (
+          <div className="space-y-4 text-gray-700">
+            <h2 className="text-xl font-semibold text-gray-800">Inversionistas: {nombresInversionistas}</h2>
+          </div>
+        )}
+
+        {/* Aval Section */}
+        {aval && (
+          <div className="space-y-4 text-gray-700">
+            <h2 className="text-xl font-semibold text-gray-800">Aval: {aval.nombre_completo}</h2>
+          </div>
+        )}
+
+        <div className="mt-6">
+          <button
+            className="bg-red-500 text-white px-6 py-3 rounded w-full hover:bg-red-700 focus:outline-none cursor-pointer"
+            onClick={() => setShowModal(true)}
+          >
+            Eliminar Préstamo
+          </button>
+        </div>
+      </div>

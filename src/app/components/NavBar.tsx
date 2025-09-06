@@ -13,7 +13,7 @@ export default function NavBar({ session }: NavBarProps) {
     const navigation = [
         { name: 'Inicio', href: '/', current: true },
         { name: 'Préstamos', href: '/prestamo', current: false },
-        { name: 'Pagos', href: '/pago', current: false },
+        // { name: 'Pagos', href: '/pago', current: false },
         { name: 'Clientes', href: '/cliente', current: false },
         { name: 'Inversionistas', href: '/inversionista', current: false },
         // { name: 'Intermediarios', href: '/intermediario', current: false },

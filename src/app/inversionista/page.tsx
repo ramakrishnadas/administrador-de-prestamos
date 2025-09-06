@@ -71,6 +71,7 @@ export default function InversionistasPage() {
               data={filteredItems}
               pagination
               paginationResetDefaultPage={resetPaginationToggle}
+              paginationPerPage={15}
               subHeader
               subHeaderComponent={subHeaderComponentMemo}
               persistTableHead

@@ -43,7 +43,7 @@ export async function POST(request: Request) {
 
         const data = await sql<Prestamo>`
             INSERT INTO prestamo (id_cliente, id_tipo_prestamo, id_intermediario, id_aval, monto, tasa_interes, periodicidad, plazo, saldo, fecha_inicio, fecha_fin)
-            VALUES (${id_cliente}, ${id_tipo_prestamo}, ${idIntermediario}, ${idAval}, ${parseFloat(monto)}, ${tasa_interes}, ${periodicidad}, ${plazo}, ${parseFloat(saldo)}, ${fechaInicio}, ${fechaFin})
+            VALUES (${id_cliente}, ${id_tipo_prestamo}, ${idIntermediario}, ${idAval}, ${parseFloat(monto)}, ${tasa_interes / 100}, ${periodicidad}, ${plazo}, ${parseFloat(saldo)}, ${fechaInicio}, ${fechaFin})
             RETURNING id, id_cliente, id_tipo_prestamo, id_intermediario, id_aval, monto, tasa_interes, periodicidad, plazo, saldo, fecha_inicio, fecha_fin;
         `;
         const result = data.rows;
