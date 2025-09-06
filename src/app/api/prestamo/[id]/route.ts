@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { Prestamo } from '@/app/lib/defintions';
+import { toTitleCaseWord } from '@/app/lib/helpers';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
@@ -57,10 +58,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
         const idAval = id_aval ? id_aval : null;
         const fechaInicio = fecha_inicio ? fecha_inicio : new Date().toISOString();
         const fechaFin = fecha_fin ? fecha_fin : null;
+        const periodicidadTitleCase = toTitleCaseWord(periodicidad);
 
         const data = await sql`
             UPDATE prestamo
-            SET id_cliente = ${id_cliente}, id_tipo_prestamo = ${id_tipo_prestamo}, id_intermediario = ${idIntermediario}, id_aval = ${idAval}, monto = ${monto}, tasa_interes = ${tasa_interes}, periodicidad = ${periodicidad}, plazo = ${plazo}, saldo = ${saldo}, fecha_inicio = ${fechaInicio}, fecha_fin = ${fechaFin}, updated_at = now()
+            SET id_cliente = ${id_cliente}, id_tipo_prestamo = ${id_tipo_prestamo}, id_intermediario = ${idIntermediario}, id_aval = ${idAval}, monto = ${monto}, tasa_interes = ${tasa_interes}, periodicidad = ${periodicidadTitleCase}, plazo = ${plazo}, saldo = ${saldo}, fecha_inicio = ${fechaInicio}, fecha_fin = ${fechaFin}, updated_at = now()
             WHERE id = ${id}
             RETURNING id, id_cliente, id_tipo_prestamo, id_intermediario, id_aval, monto, tasa_interes, periodicidad, plazo, saldo, fecha_inicio, fecha_fin;
         `;

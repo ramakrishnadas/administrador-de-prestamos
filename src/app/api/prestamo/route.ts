@@ -1,4 +1,5 @@
 import { Prestamo } from '@/app/lib/defintions';
+import { toTitleCaseWord } from '@/app/lib/helpers';
 import { sql } from '@vercel/postgres'
 import { NextResponse } from 'next/server';
 
@@ -40,10 +41,11 @@ export async function POST(request: Request) {
         const idAval = id_aval ? id_aval : null;
         const fechaInicio = fecha_inicio ? fecha_inicio : new Date().toISOString();
         const fechaFin = fecha_fin ? fecha_fin : null;
+        const periodicidadTitleCase = toTitleCaseWord(periodicidad);
 
         const data = await sql<Prestamo>`
             INSERT INTO prestamo (id_cliente, id_tipo_prestamo, id_intermediario, id_aval, monto, tasa_interes, periodicidad, plazo, saldo, fecha_inicio, fecha_fin)
-            VALUES (${id_cliente}, ${id_tipo_prestamo}, ${idIntermediario}, ${idAval}, ${parseFloat(monto)}, ${tasa_interes / 100}, ${periodicidad}, ${plazo}, ${parseFloat(saldo)}, ${fechaInicio}, ${fechaFin})
+            VALUES (${id_cliente}, ${id_tipo_prestamo}, ${idIntermediario}, ${idAval}, ${parseFloat(monto)}, ${tasa_interes / 100}, ${periodicidadTitleCase}, ${plazo}, ${parseFloat(saldo)}, ${fechaInicio}, ${fechaFin})
             RETURNING id, id_cliente, id_tipo_prestamo, id_intermediario, id_aval, monto, tasa_interes, periodicidad, plazo, saldo, fecha_inicio, fecha_fin;
         `;
         const result = data.rows;

@@ -202,7 +202,7 @@ async function seedData(client) {
         for (const prestamo of samplePrestamo) {
         await client.sql`
             INSERT INTO prestamo (id_cliente, id_tipo_prestamo, id_intermediario, monto, tasa_interes, plazo, saldo, fecha_inicio, fecha_fin)
-            VALUES (${prestamo.id_cliente}, ${prestamo.id_tipo_prestamo}, ${prestamo.id_intermediario}, ${prestamo.monto}, ${prestamo.tasa_interes}, ${prestamo.plazo}, ${prestamo.saldo}, ${prestamo.fecha_inicio}, ${prestamo.fecha_fin})
+            VALUES (${prestamo.id_cliente}, ${prestamo.id_tipo_prestamo}, ${prestamo.id_intermediario}, ${prestamo.monto}, ${prestamo.tasa_interes}, ${prestamo.plazo}, ${prestamo.saldo}, ${prestamo.fecha_inicio}, ${prestamo.fecha_fin});
         `;
         }
         console.log('Seeded "prestamo" table');
@@ -211,7 +211,7 @@ async function seedData(client) {
         for (const prestamoInversionista of samplePrestamoInversionista) {
         await client.sql`
             INSERT INTO prestamo_inversionista (id_prestamo, id_inversionista, monto_invertido, ganancia_inversionista, ganancia_administrador)
-            VALUES (${prestamoInversionista.id_prestamo}, ${prestamoInversionista.id_inversionista}, ${prestamoInversionista.monto_invertido}, ${prestamoInversionista.ganancia_inversionista}, ${prestamoInversionista.ganancia_administrador})
+            VALUES (${prestamoInversionista.id_prestamo}, ${prestamoInversionista.id_inversionista}, ${prestamoInversionista.monto_invertido}, ${prestamoInversionista.ganancia_inversionista}, ${prestamoInversionista.ganancia_administrador});
         `;
         }
         console.log('Seeded "prestamo_inversionista" table');
@@ -220,7 +220,7 @@ async function seedData(client) {
         for (const pago of samplePago) {
         await client.sql`
             INSERT INTO pago (id_prestamo, metodo_de_pago, monto_pagado, estatus, fecha)
-            VALUES (${pago.id_prestamo}, ${pago.metodo_de_pago}, ${pago.monto_pagado}, ${pago.estatus}, ${pago.fecha})
+            VALUES (${pago.id_prestamo}, ${pago.metodo_de_pago}, ${pago.monto_pagado}, ${pago.estatus}, ${pago.fecha});
         `;
         }
         console.log('Seeded "pago" table');
