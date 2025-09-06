@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { CronogramaPagos } from "../lib/defintions";
+import { CronogramaPagos, Pago } from "../lib/defintions";
 
 type PaymentModalProps = {
   isOpen: boolean;
   onClose: () => void;
   rowData: CronogramaPagos | null;
   loanType: string; // "Financiamiento" o "Réditos"
-  onSave?: (pago: any) => void;
+  onSave?: (pago: Pago) => void;
 };
 
 export default function PaymentModal({ isOpen, onClose, rowData, loanType, onSave }: PaymentModalProps) {

@@ -52,7 +52,7 @@ export default function PrestamoViewPage() {
     }
   }
 
-  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingPrestamoInversionistas || isLoadingInversionistas) 
+  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingPrestamoInversionistas || isLoadingInversionistas || isLoadingTipoPrestamo || isLoadingCronograma) 
     return (
       <div className="flex items-center justify-center h-screen">
           <p className="text-lg font-medium">Cargando...</p>

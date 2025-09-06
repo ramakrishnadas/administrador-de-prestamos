@@ -159,7 +159,7 @@ export function calcularProximaFechaRecurrente(
 
   // Crear una nueva fecha para no modificar la original
   const fechaCalculada = new Date(fechaBase);
-  const año = fechaCalculada.getFullYear();
+  // const año = fechaCalculada.getFullYear();
   const mes = fechaCalculada.getMonth();
   
   // Obtener el último día del mes actual
@@ -305,7 +305,7 @@ export function generateAmortizationSchedule(
 
 export function generateReditosSchedule(
   principal: number,
-  annualInterestRate: number, // Cambiado: ahora recibe tasa ANUAL
+  monthlyInterestRate: number, // Tasa mensual
   numberOfPeriodsToProject: number,
   frequency: Frequency, // 'semanal', 'quincenal', 'mensual'
   startDate: Date = new Date()
@@ -318,9 +318,9 @@ export function generateReditosSchedule(
   };
 
   const periods = periodsPerYear[frequency];
-  const periodicRate = (annualInterestRate / 100) / periods;
+  const periodicRate = monthlyInterestRate;
 
-  let balance = principal;
+  const balance = principal;
   const schedule = [];
   const diaPagoFijo = startDate.getDate();
 
