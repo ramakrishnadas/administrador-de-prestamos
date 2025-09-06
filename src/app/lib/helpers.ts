@@ -311,7 +311,7 @@ export function generateReditosSchedule(
   startDate: Date = new Date()
 ) {
   
-  const periodicRate = monthlyInterestRate;
+  const periodicRate = monthlyInterestRate / 100;
 
   const balance = principal;
   const schedule = [];
