@@ -70,7 +70,7 @@ try {
         const saldoActual = saldoActualResult.rows[0].balance;
 
         if (saldoActual > 0) {
-          await updateReditosFutureSchedule(parseInt(id_prestamo), monto_capital, fecha);
+          await updateReditosFutureSchedule(parseInt(id_prestamo));
         } else {
           // Cancelar cuotas pendientes si ya no hay deuda
           await sql`

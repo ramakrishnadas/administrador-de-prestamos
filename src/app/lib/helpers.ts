@@ -310,14 +310,7 @@ export function generateReditosSchedule(
   frequency: Frequency, // 'semanal', 'quincenal', 'mensual'
   startDate: Date = new Date()
 ) {
-  // 1. Calcular la tasa periódica según la frecuencia
-  const periodsPerYear: Record<Frequency, number> = {
-    semanal: 52,
-    quincenal: 24,
-    mensual: 12,
-  };
-
-  const periods = periodsPerYear[frequency];
+  
   const periodicRate = monthlyInterestRate;
 
   const balance = principal;
@@ -376,7 +369,7 @@ export function toTitleCaseWord(word: string): string {
   return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
 }
 
-export async function updateReditosFutureSchedule(id_prestamo: number, monto_capital: number, fecha: string) {
+export async function updateReditosFutureSchedule(id_prestamo: number) {
   try {
     // 1. Obtener información completa del préstamo
     const datosPrestamo = await sql`
