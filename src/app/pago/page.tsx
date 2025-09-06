@@ -38,8 +38,9 @@ export default function ClientesPage() {
   const columns = [
     { name: 'ID de Préstamo', selector: (row: Pago) => row.id_prestamo, width: "120px" },
     { name: 'Método de Pago', selector: (row: Pago) => row.metodo_de_pago, sortable: true, grow: 2},
-    { name: 'Monto Pagado', selector: (row: Pago) => row.monto_pagado },
-    { name: 'Estatus', selector: (row: Pago) => row.estatus, wrap: true, grow: 2},
+    { name: 'Monto Pagado', selector: (row: Pago) => row.monto_total },
+    { name: 'Monto Capital', selector: (row: Pago) => row.monto_capital },
+    { name: 'Monto Intereses', selector: (row: Pago) => row.monto_interes },
     { name: 'Fecha', selector: (row: Pago) => {
         const fecha = new Date(row.fecha);
         const formattedDate = formatDate(fecha);
