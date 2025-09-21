@@ -144,7 +144,7 @@ export default function AvalForm({
           <label className="block text-gray-700">Domicilio</label>
           <input
             type="text"
-            name="direccion"
+            name="domicilio"
             value={formData.domicilio}
             onChange={handleChange}
             className="w-full border px-3 py-2 rounded text-black"

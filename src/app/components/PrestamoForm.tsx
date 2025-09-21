@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { fetchAvales, fetchClientes, fetchIntermediarios, fetchPrestamoById, fetchTiposPrestamo, formatDate, generateAmortizationSchedule, generateReditosSchedule } from "../lib/helpers"
+import { fetchAvales, fetchClientes, fetchIntermediarios, fetchPrestamoById, fetchTiposPrestamo, formatDate, generateAmortizationSchedule, generateReditosSchedule, toTitleCaseWord } from "../lib/helpers"
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Aval, Cliente, Intermediario, TipoPrestamo, PrestamoInversionistaWithDetails, Prestamo, Result, Frequency, PaymentScheduleRow } from "../lib/defintions";
 import { EntityModal } from "./EntityModal";
@@ -203,7 +203,7 @@ export default function PrestamoForm({
       setFormData((prev) => ({
         ...prev,
         id_tipo_prestamo: value,
-        // periodicidad: value,
+        periodicidad: isReditos ? "mensual" : value,
         plazo: isReditos ? 0 : prev.plazo,
       }));
     } else if (name === "periodicidad") {
@@ -570,13 +570,13 @@ export default function PrestamoForm({
             value={formData.periodicidad}
             onChange={handleChange}
             required
-            className={/*tipoPrestamoNombre === "Reditos" ? "w-full border px-3 py-2 rounded text-black cursor-not-allowed" : */ "w-full border px-3 py-2 rounded text-black"}
-            // disabled={tipoPrestamoNombre === "Reditos"}
+            className={tipoPrestamoNombre === "Reditos" ? "w-full border px-3 py-2 rounded text-black cursor-not-allowed" : "w-full border px-3 py-2 rounded text-black"}
+            disabled={tipoPrestamoNombre === "Reditos"}
           >
             <option value="">Selecciona la periodicidad</option>
             {plazoOptions?.map((p) => (
               <option key={p} value={p}>
-                {p}
+                {toTitleCaseWord(p)}
               </option>
             ))}
           </select>

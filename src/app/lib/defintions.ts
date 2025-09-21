@@ -124,6 +124,7 @@ type Estatus = "pendiente" | "pagado" | "atrasado" | "abonado" | "cancelado";
 export type CronogramaPagos = {
     id: number;
     id_prestamo: number;
+    id_pago: number;
     numero_cuota: number;
     fecha_limite: Date;
     saldo_capital_inicial: string;

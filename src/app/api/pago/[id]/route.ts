@@ -11,18 +11,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         }
         
         const data = await sql<Pago>`
-            SELECT * FROM pago WHERE id = ${id};
+            SELECT * FROM pago WHERE id_prestamo = ${id};
         `;
         const result = data.rows;
         
         if (result.length === 0) {
-            return NextResponse.json({ error: 'Pago not found' }, { status: 404 });
+            return NextResponse.json({ error: 'Pagos not found' }, { status: 404 });
         }
 
-        return NextResponse.json(result[0]);
+        return NextResponse.json(result);
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ error: 'Error fetching pago' }, { status: 500 });
+        return NextResponse.json({ error: 'Error fetching pagos' }, { status: 500 });
     }
 }
 

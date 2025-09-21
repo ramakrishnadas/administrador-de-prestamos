@@ -2,8 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
-import { fetchPrestamoById, fetchClienteById, fetchAvalById, fetchPrestamoInversionistasByPrestamoId, fetchInversionistaById, fetchCronogramaById, formatDate, toTitleCaseWord, fetchTiposPrestamo } from "@/app/lib/helpers";
-import { useQueries, useQuery } from "@tanstack/react-query";
+import { fetchPrestamoById, fetchClienteById, fetchAvalById, fetchPrestamoInversionistasByPrestamoId, fetchInversionistaById, fetchCronogramaById, formatDate, toTitleCaseWord, fetchTiposPrestamo, fetchPagosById, getDaysBetweenDateStrings } from "@/app/lib/helpers";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import DataTable from "react-data-table-component";
 import { CronogramaPagos, TipoPrestamo } from "@/app/lib/defintions";
 import PaymentModal from "@/app/components/PaymentModal";
@@ -11,6 +11,7 @@ import PaymentModal from "@/app/components/PaymentModal";
 export default function PrestamoViewPage() {
   const { id } = useParams();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [showModal, setShowModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState<[boolean, CronogramaPagos | null]>([false, null]);
   const [success, setSuccess] = useState<string | null>(null); // Success state
@@ -21,6 +22,7 @@ export default function PrestamoViewPage() {
   const { data: aval, isLoading: isLoadingAval } = useQuery({ queryKey: [ "aval", id ], queryFn: () => fetchAvalById(String(prestamo?.id_aval)), enabled: !!prestamo?.id_aval });
   const { data: prestamoInversionistas, isLoading: isLoadingPrestamoInversionistas } = useQuery({ queryKey: [ "prestamo-inversionista", id ], queryFn: () => fetchPrestamoInversionistasByPrestamoId(String(id))});
   const { data: cronogramaPagos, isLoading: isLoadingCronograma } = useQuery({ queryKey: [ "cronograma-pagos", id ], queryFn: () => fetchCronogramaById(String(id)), enabled: !!id });
+  const { data: pagos, isLoading: isLoadingPagos } = useQuery({ queryKey: [ "pago", id ], queryFn: () => fetchPagosById(String(id)), enabled: !!id })
 
   const inversionistaIds = prestamoInversionistas?.map( pi => pi.id_inversionista ) || [];
 
@@ -52,7 +54,7 @@ export default function PrestamoViewPage() {
     }
   }
 
-  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingPrestamoInversionistas || isLoadingInversionistas || isLoadingTipoPrestamo || isLoadingCronograma) 
+  if (isLoadingPrestamo || isLoadingCliente || isLoadingAval || isLoadingPrestamoInversionistas || isLoadingInversionistas || isLoadingTipoPrestamo || isLoadingCronograma || isLoadingPagos) 
     return (
       <div className="flex items-center justify-center h-screen">
           <p className="text-lg font-medium">Cargando...</p>
@@ -113,6 +115,16 @@ export default function PrestamoViewPage() {
       } 
     },
     { name: "Estado", selector: (row: CronogramaPagos) => toTitleCaseWord(row.estado) },
+    { name: "Fecha de Pago", selector: (row: CronogramaPagos) => {
+        const idPago = row.id_pago;
+        const pago = pagos?.find( pago => pago.id === idPago);
+        const fechaPago = pago ? pago?.fecha : "";
+        
+        const fecha = new Date(fechaPago);
+        const formattedDate = formatDate(fecha);
+        return formattedDate ? formattedDate : "";
+      } 
+    },
     {
         name: "",
         cell: (row: CronogramaPagos) => {
@@ -131,7 +143,78 @@ export default function PrestamoViewPage() {
         },
         
     },
-  ]
+  ];
+
+  const conditionalRowStyles = [
+    {
+        when: (row: CronogramaPagos) => {
+            const idPago = row.id_pago;
+            const pago = pagos?.find(pago => pago.id === idPago);
+            const fechaPagoStr = pago?.fecha;
+            
+            // No payment date - apply default style
+            return !fechaPagoStr;
+        },
+        style: {
+            backgroundColor: 'inherit',
+        }
+    },
+    {
+        when: (row: CronogramaPagos) => {
+            const idPago = row.id_pago;
+            const pago = pagos?.find(pago => pago.id === idPago);
+            const fechaPagoStr = pago?.fecha;
+            
+            if (!fechaPagoStr) return false;
+            
+            const fechaLimite = formatDate(new Date(row.fecha_limite));
+            const fechaPago = formatDate(new Date(fechaPagoStr));
+            const daysDifference = getDaysBetweenDateStrings(fechaLimite, fechaPago);
+            
+            return daysDifference > 5;
+        },
+        style: {
+            backgroundColor: '#fc9786',
+        }
+    },
+    {
+        when: (row: CronogramaPagos) => {
+            const idPago = row.id_pago;
+            const pago = pagos?.find(pago => pago.id === idPago);
+            const fechaPagoStr = pago?.fecha;
+            
+            if (!fechaPagoStr) return false;
+            
+            const fechaLimite = formatDate(new Date(row.fecha_limite));
+            const fechaPago = formatDate(new Date(fechaPagoStr));
+            const daysDifference = getDaysBetweenDateStrings(fechaLimite, fechaPago);
+            
+            return daysDifference >= 1 && daysDifference <= 5;
+        },
+        style: {
+            backgroundColor: '#F3F57F',
+        }
+    },
+    {
+        when: (row: CronogramaPagos) => {
+            const idPago = row.id_pago;
+            const pago = pagos?.find(pago => pago.id === idPago);
+            const fechaPagoStr = pago?.fecha;
+            
+            if (!fechaPagoStr) return false;
+            
+            const fechaLimite = formatDate(new Date(row.fecha_limite));
+            const fechaPago = formatDate(new Date(fechaPagoStr));
+            const daysDifference = getDaysBetweenDateStrings(fechaLimite, fechaPago);
+            
+            return daysDifference < 1;
+        },
+        style: {
+            backgroundColor: '#88F78A',
+        }
+    },
+];
+
 
   return (
     <>
@@ -211,7 +294,27 @@ export default function PrestamoViewPage() {
             <>
             <div className="lg:col-span-4 bg-white shadow-md rounded-lg p-6 border border-gray-200">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">Cronograma de Pagos</h2>
+              {/* Matching Color Legend */}
+              <div className="mb-4 flex flex-wrap gap-4 items-center text-sm">
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded bg-white border border-gray-300"></div>
+                  <span>Pendiente de pago</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#88F78A', border: '1px solid black' }}></div>
+                  <span>Pago a tiempo o anticipado</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#F3F57F', border: '1px solid black' }}></div>
+                  <span>1-5 días de retraso</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded" style={{ backgroundColor: '#fc9786', border: '1px solid black' }}></div>
+                  <span>Más de 6 días de retraso</span>
+                </div>
+              </div>
               <div className="overflow-x-auto">
+                
                 <DataTable
                   columns={columns}
                   data={cronogramaPagos}
@@ -220,6 +323,7 @@ export default function PrestamoViewPage() {
                   dense
                   striped
                   responsive
+                  conditionalRowStyles={conditionalRowStyles}
                 />
               </div>
             </div>
@@ -266,9 +370,20 @@ export default function PrestamoViewPage() {
         onClose={() => setShowPaymentModal([false, null])}
         rowData={showPaymentModal[1]}
         loanType={tipoPrestamo}
-        onSave={(pago) => {
-          // Aquí puedes actualizar el estado o refrescar los datos
-          console.log('Pago registrado:', pago);
+        onSave={async (pago) => {
+          try {
+            // Invalidate both pagos and cronograma queries to refetch the data
+            await queryClient.invalidateQueries({ 
+              queryKey: ['pago', id] 
+            });
+            await queryClient.invalidateQueries({ 
+              queryKey: ['cronograma-pagos', id] 
+            });
+            
+            console.log('Pago registrado y queries actualizados:', pago);
+          } catch (error) {
+            console.error('Error invalidating queries:', error);
+          }
         }}
       />
     </>

@@ -46,6 +46,15 @@ export async function fetchClienteById(id: string): Promise<Cliente | null> {
     return res.json();
 }
 
+export async function fetchPagosById(id: string): Promise<Pago[] | null> {
+    const res = await fetch(`/api/pago/${id}`);
+  
+    if (res.status === 404) return null; // Return null for nonexistent pagos
+    if (!res.ok) throw new Error("Error fetching pago");
+  
+    return res.json();
+}
+
 export async function fetchInversionistaById(id: string): Promise<Inversionista | null> {
     const res = await fetch(`/api/inversionista/${id}`);
   
@@ -113,8 +122,27 @@ export function formatDate(fecha: Date) {
     const day = String(fecha.getDate()).padStart(2, '0');
     const month = String(fecha.getMonth() + 1).padStart(2, '0'); // Months are 0-based
     const year = fecha.getFullYear();
+    if (!day || !month || !year) return "";
+    
     const formattedDate = `${day}/${month}/${year}`;
     return formattedDate;
+}
+
+export function getDaysBetweenDateStrings(dateStr1: string, dateStr2: string): number {
+    // Parse the formatted strings back to Date objects
+    const parseFormattedDate = (dateStr: string): Date => {
+        const [day, month, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+    };
+
+    const date1 = parseFormattedDate(dateStr1);
+    const date2 = parseFormattedDate(dateStr2);
+    
+    // Calculate difference in milliseconds and convert to days
+    const diffMs = date2.getTime() - date1.getTime();
+    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
 }
 
 export async function getLastPaymentDate(id: number) {
