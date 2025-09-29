@@ -1,7 +1,8 @@
 "use client"
 import Link from "next/link";
 import { Disclosure } from '@headlessui/react'
-// import LogoutButton from "./LogoutButton";
+import LogoutButton from "./LogoutButton";
+
 
 // Add the session prop with boolean type
 interface NavBarProps {
@@ -16,7 +17,7 @@ export default function NavBar({ session }: NavBarProps) {
         { name: 'Pagos', href: '/pago', current: false },
         { name: 'Clientes', href: '/cliente', current: false },
         { name: 'Inversionistas', href: '/inversionista', current: false },
-        // { name: 'Intermediarios', href: '/intermediario', current: false },
+        
         { name: 'Avales', href: '/aval', current: false },
         { name: 'Calculadora', href: '/calculadora', current: false }
     ]
@@ -26,13 +27,6 @@ export default function NavBar({ session }: NavBarProps) {
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div className="flex h-16 items-center justify-between">
                     <div className="flex items-center">
-                        {/* <div className="shrink-0">
-                            <img
-                            alt="Your Company"
-                            src=""
-                            className="size-12"
-                            />
-                        </div> */}
                         <div className="hidden md:block">
                             {session ? (
                                 <div className="ml-10 flex items-baseline space-x-4">
@@ -45,7 +39,8 @@ export default function NavBar({ session }: NavBarProps) {
                                         {item.name}
                                     </Link>
                                     ))}
-                                    {/* <LogoutButton /> */}
+                                    <LogoutButton />
+                                    
                                 </div>
                             ) : (
                                 <div></div>
