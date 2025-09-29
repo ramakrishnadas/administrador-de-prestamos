@@ -33,7 +33,7 @@ export default function Login() {
         window.location.href = callbackUrl;
       }
     } catch (error) {
-      setError("An unexpected error occurred");
+      setError(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
