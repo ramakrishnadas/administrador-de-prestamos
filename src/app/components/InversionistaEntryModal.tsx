@@ -23,8 +23,8 @@ export function InversionistaEntryModal({
     useState<Inversionista | null>(null);
 
   const [monto, setMonto] = useState("");
-  const [gananciaInv, setGananciaInv] = useState("");
-  const [gananciaAdm, setGananciaAdm] = useState("");
+  const [gananciaInv, setGananciaInv] = useState("100"); // Start with 100% for investor
+  const [gananciaAdm, setGananciaAdm] = useState("0"); // Start with 0% for admin
 
   useEffect(() => {
     fetchInversionistas().then(setExistingInversionistas);
@@ -37,6 +37,42 @@ export function InversionistaEntryModal({
     setShowInversionistaModal(false);
   };
 
+  const handleGananciaInvChange = (value: string) => {
+    const numValue = parseFloat(value) || 0;
+    
+    if (numValue > 100) {
+      // If user tries to input more than 100, cap it at 100
+      setGananciaInv("100");
+      setGananciaAdm("0");
+    } else if (numValue < 0) {
+      // If user tries to input negative, set to 0
+      setGananciaInv("0");
+      setGananciaAdm("100");
+    } else {
+      setGananciaInv(value);
+      // Automatically calculate admin gain as 100 - investor gain
+      setGananciaAdm(String(100 - numValue));
+    }
+  };
+
+  const handleGananciaAdmChange = (value: string) => {
+    const numValue = parseFloat(value) || 0;
+    
+    if (numValue > 100) {
+      // If user tries to input more than 100, cap it at 100
+      setGananciaAdm("100");
+      setGananciaInv("0");
+    } else if (numValue < 0) {
+      // If user tries to input negative, set to 0
+      setGananciaAdm("0");
+      setGananciaInv("100");
+    } else {
+      setGananciaAdm(value);
+      // Automatically calculate investor gain as 100 - admin gain
+      setGananciaInv(String(100 - numValue));
+    }
+  };
+
   const handleSubmit = () => {
     const inversionista = existingInversionistas.find(
       (i) => i.id === selectedId
@@ -47,8 +83,8 @@ export function InversionistaEntryModal({
       id_inversionista: inversionista.id,
       inversionista,
       monto_invertido: monto,
-      ganancia_inversionista: gananciaInv,
-      ganancia_administrador: gananciaAdm,
+      ganancia_inversionista: String(parseFloat(gananciaInv) / 100),
+      ganancia_administrador: String(parseFloat(gananciaAdm) / 100),
     });
   };
 
@@ -91,35 +127,60 @@ export function InversionistaEntryModal({
           className="space-y-4"
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <input
-              type="number"
-              min="0"
-              required
-              value={monto}
-              onChange={(e) => setMonto(e.target.value)}
-              placeholder="Monto invertido"
-              className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm"
-            />
-            <input
-              type="number"
-              min="0.1"
-              step={0.1}
-              required
-              value={gananciaInv}
-              onChange={(e) => setGananciaInv(e.target.value)}
-              placeholder="Ganancia inversionista"
-              className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm"
-            />
-            <input
-              type="number"
-              min="0.1"
-              step={0.1}
-              required
-              value={gananciaAdm}
-              onChange={(e) => setGananciaAdm(e.target.value)}
-              placeholder="Ganancia administrador"
-              className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm"
-            />
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Monto Invertido
+              </label>
+              <input
+                type="number"
+                min="0"
+                required
+                value={monto}
+                onChange={(e) => setMonto(e.target.value)}
+                className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm w-full"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Ganancia Inversionista
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  required
+                  value={gananciaInv}
+                  onChange={(e) => handleGananciaInvChange(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm w-full"
+                />
+                <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Ganancia Administrador
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  required
+                  value={gananciaAdm}
+                  onChange={(e) => handleGananciaAdmChange(e.target.value)}
+                  className="border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring focus:ring-blue-300 text-sm w-full"
+                />
+                <span className="absolute right-3 top-2 text-gray-500 text-sm">%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Display total percentage */}
+          <div className="text-center text-sm text-gray-600">
+            Total: {parseFloat(gananciaInv) + parseFloat(gananciaAdm)}%
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">

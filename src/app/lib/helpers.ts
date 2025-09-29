@@ -158,24 +158,6 @@ export async function getLastPaymentDate(id: number) {
     return latestPayment?.fecha || null;
 }
 
-
-
-/**
- * Obtiene el último día del mes para una fecha dada
- * @param date - Fecha de la cual se quiere obtener el último día del mes
- * @returns El último día del mes (28, 29, 30 o 31)
- */
-export function getUltimoDiaDelMes(date: Date): number {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-}
-
-/**
- * Calcula la próxima fecha recurrente basada en un día fijo del mes
- * Maneja automáticamente los casos donde el día deseado no existe en el mes
- * @param fechaBase - Fecha base para el cálculo (normalmente fecha inicio + n meses)
- * @param diaMesDeseado - Día del mes deseado (1-31)
- * @returns La fecha calculada segura
- */
 export function calcularProximaFechaRecurrente(
   fechaBase: Date, 
   diaMesDeseado: number
@@ -185,9 +167,13 @@ export function calcularProximaFechaRecurrente(
     throw new Error('El día deseado debe estar entre 1 y 31');
   }
 
-  // Crear una nueva fecha para no modificar la original
-  const fechaCalculada = new Date(fechaBase);
-  // const año = fechaCalculada.getFullYear();
+  // Crear una nueva fecha usando el constructor local
+  const fechaCalculada = new Date(
+    fechaBase.getFullYear(),
+    fechaBase.getMonth(),
+    fechaBase.getDate()
+  );
+  
   const mes = fechaCalculada.getMonth();
   
   // Obtener el último día del mes actual
@@ -211,6 +197,11 @@ export function calcularProximaFechaRecurrente(
   }
   
   return fechaCalculada;
+}
+
+function getUltimoDiaDelMes(fecha: Date): number {
+  // Usar constructor local para evitar problemas de timezone
+  return new Date(fecha.getFullYear(), fecha.getMonth() + 1, 0).getDate();
 }
 
 export function generateAmortizationSchedule(
@@ -333,63 +324,113 @@ export function generateAmortizationSchedule(
 
 export function generateReditosSchedule(
   principal: number,
-  monthlyInterestRate: number, // Tasa mensual
+  monthlyInterestRate: number,
   numberOfPeriodsToProject: number,
-  frequency: Frequency, // 'semanal', 'quincenal', 'mensual'
+  frequency: Frequency,
   startDate: Date = new Date()
 ) {
-  
   const periodicRate = monthlyInterestRate / 100;
-
   const balance = principal;
   const schedule = [];
-  const diaPagoFijo = startDate.getDate();
+
+  // Validate startDate
+  if (isNaN(startDate.getTime())) {
+    throw new Error('Invalid start date provided');
+  }
+
+  console.log('Starting schedule generation with:', {
+    startDate: startDate.toString(),
+    startDateISO: startDate.toISOString(),
+    frequency,
+    periods: numberOfPeriodsToProject
+  });
 
   for (let i = 1; i <= numberOfPeriodsToProject; i++) {
-    // 1. Calculate the interest obligation for this period
     const interestPayment = parseFloat((balance * periodicRate).toFixed(2));
-    
-    // 2. The minimum payment is ONLY the interest
     const minPayment = interestPayment;
     const principalPayment = 0;
 
-    // 3. Calculate the next due date based on frequency
     let paymentDate: Date;
     
     if (frequency === 'mensual') {
-      // Para mensual: usar día fijo del mes
-      const fechaBase = new Date(startDate);
-      fechaBase.setMonth(startDate.getMonth() + i);
-      paymentDate = calcularProximaFechaRecurrente(fechaBase, diaPagoFijo);
+      // SIMPLE AND ROBUST: Use the first day of the month and then set the day
+      const baseDate = new Date(startDate);
+      
+      // Calculate target month and year
+      const targetMonth = baseDate.getMonth() + i;
+      const targetYear = baseDate.getFullYear() + Math.floor(targetMonth / 12);
+      const finalMonth = targetMonth % 12;
+      
+      // Get the last day of the target month to ensure we don't exceed it
+      const lastDayOfMonth = new Date(targetYear, finalMonth + 1, 0).getDate();
+      const paymentDay = Math.min(baseDate.getDate(), lastDayOfMonth);
+      
+      // Create the payment date safely
+      paymentDate = new Date(targetYear, finalMonth, paymentDay);
+      
+      console.log(`Period ${i} date calculation:`, {
+        baseDate: baseDate.toString(),
+        targetYear,
+        targetMonth: finalMonth,
+        paymentDay,
+        paymentDate: paymentDate.toString(),
+        isValid: !isNaN(paymentDate.getTime())
+      });
+      
     } else {
-      // Para semanal y quincenal: sumar días
-      const daysPerPeriod: Record<Frequency, number> = {
+      const daysPerPeriod: Record<Exclude<Frequency, 'mensual'>, number> = {
         semanal: 7,
-        quincenal: 15,
-        mensual: 0 // No se usa para este caso
+        quincenal: 15
       };
       
       paymentDate = new Date(startDate);
       paymentDate.setDate(startDate.getDate() + (daysPerPeriod[frequency] * i));
     }
 
-    // 4. Project the balance forward (assuming no extra payment)
-    const remainingBalance = balance; // Permanece igual para Réditos
+    // Validate paymentDate
+    if (isNaN(paymentDate.getTime())) {
+      console.error('Invalid payment date calculated - using fallback:', {
+        startDate: startDate.toString(),
+        frequency,
+        period: i,
+        calculatedDate: paymentDate
+      });
+      
+      // Fallback: use simple date addition
+      paymentDate = new Date(startDate);
+      paymentDate.setMonth(startDate.getMonth() + i);
+      
+      // If still invalid, use current date + months
+      if (isNaN(paymentDate.getTime())) {
+        paymentDate = new Date();
+        paymentDate.setMonth(paymentDate.getMonth() + i);
+      }
+    }
 
+    // Format the date as YYYY-MM-DD for database
+    const formattedDate = formatDateForDB(paymentDate);
+    
     schedule.push({
       numero_cuota: i,
       saldo_capital_inicial: balance.toFixed(2),
       pago_capital: principalPayment.toFixed(2),
       pago_interes: interestPayment.toFixed(2),
       monto_cuota: minPayment.toFixed(2),
-      saldo_capital_final: remainingBalance.toFixed(2),
-      fecha_limite: paymentDate.toISOString().split('T')[0], // Formato YYYY-MM-DD
+      saldo_capital_final: balance.toFixed(2),
+      fecha_limite: formattedDate,
     });
-
-    // El balance no cambia en la proyección de Réditos
   }
 
+  console.log('Successfully generated schedule with', schedule.length, 'periods');
   return schedule;
+}
+
+// Helper function to format date as YYYY-MM-DD for database
+function formatDateForDB(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 export function toTitleCaseWord(word: string): string {
@@ -406,6 +447,12 @@ export async function updateReditosFutureSchedule(id_prestamo: number) {
     `;
     const { saldo: nuevoSaldo, tasa_interes, periodicidad, fecha_inicio } = datosPrestamo.rows[0];
 
+     console.log('updateReditosFutureSchedule - fecha_inicio from DB:', {
+      fecha_inicio,
+      type: typeof fecha_inicio,
+      parsed: new Date(fecha_inicio).toString()
+    });
+
     // 2. Obtener todas las cuotas pendientes
     const pendingSchedules = await sql`
       SELECT id, fecha_limite, numero_cuota
@@ -414,6 +461,7 @@ export async function updateReditosFutureSchedule(id_prestamo: number) {
       ORDER BY fecha_limite ASC;
     `;
 
+    const nuevoSaldoNum = parseFloat(nuevoSaldo);
     const nuevoInteres = parseFloat((nuevoSaldo * tasa_interes).toFixed(2));
 
     // 3. Si hay cuotas pendientes, actualizarlas
@@ -422,7 +470,7 @@ export async function updateReditosFutureSchedule(id_prestamo: number) {
         await sql`
           UPDATE cronograma_pagos 
           SET 
-            saldo_capital_inicial = ${nuevoSaldo},
+            saldo_capital_inicial = ${nuevoSaldoNum},
             pago_interes = ${nuevoInteres},
             monto_cuota = ${nuevoInteres},
             saldo_capital_final = ${nuevoSaldo}
@@ -431,7 +479,7 @@ export async function updateReditosFutureSchedule(id_prestamo: number) {
       }
     } else {
       // 4. ✅ SI NO HAY CUOTAS PENDIENTES, CREAR NUEVAS
-      await createNewReditosSchedules(id_prestamo, nuevoSaldo, tasa_interes, periodicidad, fecha_inicio);
+      await createNewReditosSchedules(id_prestamo, nuevoSaldoNum, tasa_interes, periodicidad, fecha_inicio);
     }
 
   } catch (error) {
@@ -444,13 +492,39 @@ async function createNewReditosSchedules(
   id_prestamo: number, 
   nuevoSaldo: number, 
   tasa_interes: number, 
-  periodicidad: Frequency, // Asegúrate que sea del tipo Frequency
-  nuevaFechaInicio: string
+  periodicidad: Frequency,
+  nuevaFechaInicio: string | Date // Accept both string and Date
 ) {
   try {
+    let startDate: Date;
+
+    // Handle different input types
+    if (nuevaFechaInicio instanceof Date) {
+      startDate = nuevaFechaInicio;
+    } else {
+      // If it's a string, parse it
+      startDate = new Date(nuevaFechaInicio);
+    }
+
+    // Better validation
+    if (isNaN(startDate.getTime())) {
+      console.error('Invalid start date received:', {
+        input: nuevaFechaInicio,
+        type: typeof nuevaFechaInicio,
+        parsed: startDate
+      });
+      throw new Error(`Invalid start date: ${String(nuevaFechaInicio)}`);
+    }
+
+    console.log('Creating new schedules with:', {
+      startDate: startDate.toString(),
+      startDateISO: startDate.toISOString(),
+      localDate: formatDateForDB(startDate)
+    });
+
     // 1. Obtener la última cuota para saber el próximo número
     const lastSchedule = await sql`
-      SELECT numero_cuota
+      SELECT numero_cuota, fecha_limite
       FROM cronograma_pagos 
       WHERE id_prestamo = ${id_prestamo}
       ORDER BY numero_cuota DESC
@@ -461,20 +535,36 @@ async function createNewReditosSchedules(
       ? lastSchedule.rows[0].numero_cuota + 1 
       : 1;
 
+    // Use the last payment date as start date if available, otherwise use loan start date
+    let effectiveStartDate = startDate;
+    if (lastSchedule.rows.length > 0 && lastSchedule.rows[0].fecha_limite) {
+      const lastDate = new Date(lastSchedule.rows[0].fecha_limite);
+      if (!isNaN(lastDate.getTime())) {
+        effectiveStartDate = lastDate;
+      }
+    }
+
+    console.log('Generating new Réditos schedules with:', {
+      effectiveStartDate: effectiveStartDate.toString(),
+      balance: nuevoSaldo,
+      rate: tasa_interes,
+      frequency: periodicidad
+    });
+
     // 2. Generar el nuevo cronograma usando la función existente
     const newSchedules = generateReditosSchedule(
       nuevoSaldo,
-      tasa_interes, // tasa anual
-      6, // Proyectar 12 periodos
+      tasa_interes * 100,
+      6, // Proyectar 6 periodos
       periodicidad,
-      new Date(nuevaFechaInicio)
+      effectiveStartDate
     );
 
     // 3. Ajustar los números de cuota y preparar para inserción
     const schedulesToInsert = newSchedules.map((schedule, index) => ({
       id_prestamo: id_prestamo,
       numero_cuota: nextCuotaNumber + index,
-      fecha_limite: schedule.fecha_limite, // Ya está en formato ISO
+      fecha_limite: schedule.fecha_limite,
       saldo_capital_inicial: parseFloat(schedule.saldo_capital_inicial),
       pago_capital: parseFloat(schedule.pago_capital),
       pago_interes: parseFloat(schedule.pago_interes),
@@ -497,6 +587,8 @@ async function createNewReditosSchedules(
         );
       `;
     }
+
+    console.log(`Successfully created ${schedulesToInsert.length} new Réditos schedules`);
 
   } catch (error) {
     console.error('Error creando nuevo cronograma de Réditos:', error);

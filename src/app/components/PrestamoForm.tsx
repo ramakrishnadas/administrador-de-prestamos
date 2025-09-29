@@ -22,16 +22,17 @@ export default function PrestamoForm({
   onSave,
   id,
 }: PrestamoFormProps) {
+  const [montoInvertido, setMontoInvertido] = useState(0);
   const [formData, setFormData] = useState({
     id_cliente: "",
     id_tipo_prestamo: "",
     id_intermediario: "",
     id_aval: "",
-    monto: "",
+    monto: String(montoInvertido),
     tasa_interes: "",
     periodicidad: "",
     plazo: 0,
-    saldo: "",
+    saldo: String(montoInvertido),
     fecha_inicio: new Date().toISOString().split("T")[0],
     fecha_fin: "",
   });
@@ -51,6 +52,7 @@ export default function PrestamoForm({
   const [frequency, setFrequency] = useState<Frequency>("mensual");
   const [result, setResult] = useState<Result | null>(null);
   const [paymentSchedule, setPaymentSchedule] = useState<PaymentScheduleRow[]>([]);
+  
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -149,6 +151,23 @@ export default function PrestamoForm({
   }
 
   useEffect(() => {
+    const total = selectedInversionistas.reduce((sum, inv) => {
+      return sum + parseFloat(inv.monto_invertido);
+    }, 0);
+    
+    setMontoInvertido(total);
+  }, [selectedInversionistas]);
+
+  // Update formData when montoInvertido changes
+  useEffect(() => {
+    setFormData(prev => ({
+      ...prev,
+      monto: String(montoInvertido),
+      saldo: String(montoInvertido), // Keep saldo in sync
+    }));
+  }, [montoInvertido]);
+
+  useEffect(() => {
     if (id) {
       fetchPrestamoById(id)
         .then((data) => {
@@ -189,13 +208,14 @@ export default function PrestamoForm({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
 
-    if (name === "monto") {
-      setFormData((prev) => ({
-        ...prev,
-        monto: value,
-        saldo: value, // sync hidden field
-      }));
-    } else if (name === "id_tipo_prestamo") {
+    // if (name === "monto") {
+    //   setFormData((prev) => ({
+    //     ...prev,
+    //     monto: value,
+    //     saldo: value, // sync hidden field
+    //   }));
+    // } else
+    if (name === "id_tipo_prestamo") {
       const selectedTipo = tipos_prestamo?.find((tp: TipoPrestamo) => tp.id.toString() === value);
       const isReditos = selectedTipo?.nombre === "Reditos";
       setTipoPrestamoNombre(selectedTipo?.nombre || "");
@@ -453,7 +473,7 @@ export default function PrestamoForm({
           <ul className="mb-2">
             {selectedInversionistas?.map((inv: PrestamoInversionistaWithDetails, i: number) => (
               <li key={i}>
-                {inv.id_inversionista} — {inv.inversionista?.nombre_completo}
+                {inv.id_inversionista} — {inv.inversionista?.nombre_completo} — {inv.monto_invertido}
                 <button className="ml-2 cursor-pointer" onClick={() => removeInversionista(i)}>🗑️</button>
               </li>
             ))}
@@ -544,9 +564,9 @@ export default function PrestamoForm({
             step="0.01"
             name="monto"
             value={formData.monto}
-            onChange={handleChange}
-            required
-            className="w-full border px-3 py-2 rounded text-black"
+            readOnly
+            // onChange={handleChange}
+            className="w-full border px-3 py-2 rounded text-black bg-gray-100 cursor-not-allowed"
           />
         </div>
 

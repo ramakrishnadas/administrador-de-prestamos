@@ -63,11 +63,19 @@ try {
       `;
 
       // 5. ✅ SOLO recalcular si es Réditos y se pagó capital adicional
-      if (monto_capital > 0 && tipo_prestamo_nombre === 'Réditos') {
+      if (tipo_prestamo_nombre === 'Reditos') {
+        // Actualizar saldo y monto del prestamo
+        await sql`
+          UPDATE prestamo 
+          SET monto = monto - ${monto_capital}
+          WHERE id = ${id_prestamo};
+        `;
+
+        // Obtener saldo actual
         const saldoActualResult = await sql`
           SELECT saldo FROM prestamo WHERE id = ${id_prestamo};
         `;
-        const saldoActual = saldoActualResult.rows[0].balance;
+        const saldoActual = saldoActualResult.rows[0].saldo;
 
         if (saldoActual > 0) {
           await updateReditosFutureSchedule(parseInt(id_prestamo));

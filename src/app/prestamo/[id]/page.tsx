@@ -372,7 +372,10 @@ export default function PrestamoViewPage() {
         loanType={tipoPrestamo}
         onSave={async (pago) => {
           try {
-            // Invalidate both pagos and cronograma queries to refetch the data
+            // Invalidate prestamo, pagos and cronograma queries to refetch the data
+            await queryClient.invalidateQueries({ 
+              queryKey: ['prestamo', id] 
+            });
             await queryClient.invalidateQueries({ 
               queryKey: ['pago', id] 
             });
