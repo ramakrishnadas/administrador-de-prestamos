@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Pago } from "../lib/defintions";
 import DataTable from "react-data-table-component";
 import React from "react";
-import { fetchPagos, formatDate } from "../lib/helpers";
+import { fetchPagos, formatDate, toTitleCaseWord } from "../lib/helpers";
 import Link from "next/link";
 import FilterComponent from "../components/FilterComponent";
 
@@ -37,7 +37,7 @@ export default function ClientesPage() {
 
   const columns = [
     { name: 'ID de Préstamo', selector: (row: Pago) => row.id_prestamo, width: "120px" },
-    { name: 'Método de Pago', selector: (row: Pago) => row.metodo_de_pago, sortable: true, grow: 2},
+    { name: 'Método de Pago', selector: (row: Pago) => { return toTitleCaseWord(row.metodo_de_pago) }, sortable: true, grow: 2},
     { name: 'Monto Pagado', selector: (row: Pago) => row.monto_total },
     { name: 'Monto Capital', selector: (row: Pago) => row.monto_capital },
     { name: 'Monto Intereses', selector: (row: Pago) => row.monto_interes },
